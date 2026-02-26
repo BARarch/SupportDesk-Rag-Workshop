@@ -207,7 +207,7 @@ print("PART 2: Computing Similarity Scores")
 print("="*80)
 
 # Create a search query - this is what a user might type
-query = "Users can't login after changing password"
+query = "Emails are not being delivered"
 print(f"\nSearch Query: '{query}'")
 
 # -----------------------------------------------------------------------------
@@ -274,7 +274,7 @@ print("PART 3: Finding Most Similar Tickets")
 print("="*80)
 
 # Get top-5 most similar tickets
-top_k = 5
+top_k = 10
 
 # np.argsort() returns indices that would sort the array (ascending)
 # [::-1] reverses to get descending order (highest similarity first)
@@ -287,8 +287,11 @@ print("-" * 80)
 for rank, idx in enumerate(top_indices, 1):
     ticket = tickets[idx]
     score = similarities[idx]
-    
-    print(f"\n#{rank} - Similarity: {score:.4f}")
+
+    # Show threshold status
+    threshold_status = "✓ ABOVE THRESHOLD" if score >= 0.5 else "✗ below threshold"
+
+    print(f"\n#{rank} - Similarity: {score:.4f} {threshold_status}")
     print(f"Ticket ID: {ticket['ticket_id']}")
     print(f"Title: {ticket['title']}")
     print(f"Category: {ticket['category']} | Priority: {ticket['priority']}")
