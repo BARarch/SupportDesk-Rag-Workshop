@@ -419,8 +419,7 @@ print("\nBuilding Chroma vector store...")
 chroma_store = Chroma.from_documents(
     documents=documents,              # Our LangChain Document objects
     embedding=embeddings_model,       # OpenAI embeddings
-    collection_name="support_tickets",# Like a "table" in a database
-    persist_directory="./chroma_db"   # Save to disk for persistence
+    collection_name="support_tickets"# Like a "table" in a database
 )
 print("✓ Chroma store created and persisted")
 
