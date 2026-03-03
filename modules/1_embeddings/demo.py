@@ -207,7 +207,7 @@ print("PART 2: Computing Similarity Scores")
 print("="*80)
 
 # Create a search query - this is what a user might type
-query = "Emails are not being delivered"
+query = "Database is running very slowly"
 print(f"\nSearch Query: '{query}'")
 
 # -----------------------------------------------------------------------------
@@ -290,6 +290,9 @@ for rank, idx in enumerate(top_indices, 1):
 
     # Show threshold status
     threshold_status = "✓ ABOVE THRESHOLD" if score >= 0.5 else "✗ below threshold"
+
+    if threshold_status == "✗ below threshold":
+        continue
 
     print(f"\n#{rank} - Similarity: {score:.4f} {threshold_status}")
     print(f"Ticket ID: {ticket['ticket_id']}")
@@ -476,3 +479,21 @@ Query → [Embed] → [Search] → Top Documents → [LLM] → Answer
 
 NEXT: Module 2 - Chunking & Vector Stores
 """)
+
+# Compare two queries
+query1 = "Login authentication failed"
+query2 = "Slow database performance"
+
+print("\n" + "="*80)
+print("COMPARING TWO QUERIES")
+print("="*80)
+
+for q in [query1, query2]:
+    response = client.embeddings.create(input=[q], model=embedding_model)
+    q_emb = np.array([response.data[0].embedding])
+    sims = cosine_similarity(q_emb, embeddings)[0]
+    top_idx = np.argmax(sims)
+    
+    print(f"\nQuery: '{q}'")
+    print(f"  Best match: {tickets[top_idx]['title']}")
+    print(f"  Score: {sims[top_idx]:.4f}")

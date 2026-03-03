@@ -37,7 +37,7 @@ Query ────┘                        [0.34, -1.2, 0.34, 1.3, ..., -0.05,
 | **Audio** | Audio embedding model | Audio vector embeddings | Similarity search |
 
 **Why This Matters:**
-- All modalities get converted to the same format (vectors)
+- All modalities g et converted to the same format (vectors)
 - Enables cross-modal search (e.g., text query → image results)
 - Unified infrastructure for all data types
 

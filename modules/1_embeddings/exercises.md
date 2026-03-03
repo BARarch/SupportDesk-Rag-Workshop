@@ -40,9 +40,9 @@ top_k = 10
 ```
 
 **Run the demo and answer**:
-- At what rank does the similarity score drop below 0.5?
-- Are results #8, #9, #10 still relevant to your query?
-- What's the similarity score of result #10?
+- At what rank does the similarity score drop below 0.5? - #2
+- Are results #8, #9, #10 still relevant to your query? - No
+- What's the similarity score of result #10? - .2719
 
 ---
 
