@@ -129,14 +129,14 @@ print(f"\nSample document length: {len(documents[0].page_content)} characters")
 print("\n--- Strategy 1: Fixed-Size Chunking ---")
 
 fixed_splitter = CharacterTextSplitter(
-    chunk_size=200,      # Maximum characters per chunk
-    chunk_overlap=20,    # Characters to repeat between chunks (10% overlap)
-    separator="\n"       # Prefer splitting on newlines when possible
+    chunk_size=500,
+    chunk_overlap=50,
+    separator="\n"      # Prefer splitting on newlines when possible
 )
 fixed_chunks = fixed_splitter.split_documents(documents)
 
 print(f"✓ Created {len(fixed_chunks)} chunks")
-print(f"  Chunk size: 200 chars, Overlap: 20 chars")
+print(f"  Chunk size: 500 chars, Overlap: 50 chars")
 print(f"  Sample chunk: {fixed_chunks[0].page_content[:100]}...")
 
 # =============================================================================
@@ -407,7 +407,7 @@ embeddings_model = OpenAIEmbeddings(
     model=os.getenv('OPENAI_EMBEDDING_MODEL', 'text-embedding-3-small')
 )
 
-query = "Authentication problems after password reset"
+query = "Payment processing fails"
 
 print("\nBuilding Chroma vector store...")
 
@@ -428,11 +428,11 @@ print("✓ Chroma store created and persisted")
 # Basic Similarity Search
 # -----------------------------------------------------------------------------
 print(f"\nSearching in Chroma: '{query}'")
-chroma_results = chroma_store.similarity_search(query, k=3)
+chroma_results_with_scores = chroma_store.similarity_search_with_score(query, k=3)
 
-print(f"\nTop {len(chroma_results)} results:")
-for i, doc in enumerate(chroma_results, 1):
-    print(f"\n#{i}")
+print(f"\nTop {len(chroma_results_with_scores)} results:")
+for i, (doc, score) in enumerate(chroma_results_with_scores, 1):
+    print(f"\n#{i} - Distance: {score:.4f}")
     print(f"Ticket: {doc.metadata['ticket_id']}")
     print(f"Category: {doc.metadata['category']}")
 
@@ -477,7 +477,7 @@ for i, doc in enumerate(mmr_results, 1):
     print(f"\n#{i}")
     print(f"Ticket: {doc.metadata['ticket_id']}")
     print(f"Title: {tickets[int(doc.metadata['ticket_id'].split('-')[1]) - 1]['title']}")
-
+    print(f"Category: {doc.metadata['category']}")
 # ============================================================================
 # PART 3: Metadata Filtering
 # ============================================================================
@@ -509,7 +509,7 @@ print("\nSearching only in 'Authentication' category:")
 filtered_results = chroma_store.similarity_search(
     query,
     k=3,
-    filter={"category": "Authentication"}  # Only match this category
+    filter={"category": "Email"}# Only match this category
 )
 
 print(f"\nFiltered results ({len(filtered_results)}):")
@@ -528,7 +528,7 @@ for i, doc in enumerate(filtered_results, 1):
 print("\n\nSearching only 'High' priority tickets:")
 high_priority_results = chroma_store.similarity_search(
     "Database performance issues",
-    k=3,
+    k=5,
     filter={"priority": "High"}  # Only high priority
 )
 
@@ -537,6 +537,7 @@ for i, doc in enumerate(high_priority_results, 1):
     print(f"\n#{i}")
     print(f"Ticket: {doc.metadata['ticket_id']}")
     print(f"Priority: {doc.metadata['priority']}")
+    print(f"Category: {doc.metadata['category']}")
 
 # ============================================================================
 # PART 4: Comparing Chunking Strategies
