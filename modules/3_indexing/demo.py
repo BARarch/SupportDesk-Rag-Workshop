@@ -143,7 +143,7 @@ Priority: {ticket['priority']}"""
 print(f"✓ Loaded {len(documents)} support tickets")
 
 # Test query - we'll use this across all index types
-query = "How do I fix authentication issues after password reset?"
+query = "Database connection is timing out"
 print(f"\nTest Query: '{query}'")
 
 # ============================================================================
@@ -213,18 +213,33 @@ vector_index = VectorStoreIndex.from_documents(documents)
 #   - The engine handles: embed query → search → synthesize response
 # -----------------------------------------------------------------------------
 vector_query_engine = vector_index.as_query_engine(similarity_top_k=3)
-
+vector_query_engine5 = vector_index.as_query_engine(similarity_top_k=5)
 print("✓ Created vector index")
-print(f"\nQuery: '{query}'")
-vector_response = vector_query_engine.query(query)
 
-print("\nVector Index Results:")
-print(f"Answer: {vector_response.response}\n")
-print("Source Documents:")
-for i, node in enumerate(vector_response.source_nodes, 1):
-    print(f"\n{i}. {node.metadata.get('ticket_id', 'Unknown')}")
-    print(f"   Score: {node.score:.4f}")  # Similarity score (higher = more similar)
-    print(f"   {node.text[:150]}...")
+queries = [query, 
+           "Email notifications not being delivered",
+           "Mobile app crashes on startup",
+           "Payment processing fails for international cards"]
+for query in queries:
+    print(f"\nQuery: '{query}'")
+    vector_response = vector_query_engine.query(query)
+
+    print("\nVector Index Results:")
+    print(f"Answer: {vector_response.response}\n")
+    print("Source Documents:")
+    for i, node in enumerate(vector_response.source_nodes, 1):
+        print(f"{i}. {node.metadata.get('ticket_id', 'Unknown')}", end="\t")
+        print(f"   Score: {node.score:.4f}")  # Similarity score (higher = more similar)
+        #print(f"   {node.text[:150]}...")
+    
+    vector_response = vector_query_engine5.query(query)
+
+    print("\nVector Index Results 5 Nearest:")
+    print(f"Answer: {vector_response.response}\n")
+    print("Source Documents:")
+    for i, node in enumerate(vector_response.source_nodes, 1):
+        print(f"{i}. {node.metadata.get('ticket_id', 'Unknown')}", end="\t")
+        print(f"   Score: {node.score:.4f}")
 
 # ============================================================================
 # PART 2: Summary Index
@@ -407,7 +422,8 @@ tree_index = TreeIndex.from_documents(tree_documents)
 #   Lower = focused search (may miss relevant docs in other branches)
 # -----------------------------------------------------------------------------
 tree_query_engine = tree_index.as_query_engine(child_branch_factor=2)
-
+tree_query_engine1 = tree_index.as_query_engine(child_branch_factor=1)
+tree_query_engine3 = tree_index.as_query_engine(child_branch_factor=3)
 print("✓ Created tree index with hierarchical structure")
 print(f"\nQuery: '{query}'")
 
@@ -417,14 +433,19 @@ print(f"\nQuery: '{query}'")
 # 3. Traverse into top-k branches (child_branch_factor)
 # 4. Repeat until reaching leaf nodes
 # 5. Collect relevant leaves, synthesize final answer
-tree_response = tree_query_engine.query(query)
+engines = [tree_query_engine,
+           tree_query_engine1,
+           tree_query_engine3]
 
-print("\nTree Index Results:")
-print(f"Answer: {tree_response.response}\n")
-print("Source Documents:")
-for i, node in enumerate(tree_response.source_nodes[:3], 1):
-    print(f"\n{i}. {node.metadata.get('ticket_id', 'Unknown')}")
-    print(f"   {node.text[:150]}...")
+for engine, branches in zip(engines, [2,1,3]):
+    tree_response = engine.query(query)
+
+    print(f"\nTree Index Results - Branhes {branches}:")
+    print(f"Answer: {tree_response.response}\n")
+    print("Source Documents:")
+    for i, node in enumerate(tree_response.source_nodes[:3], 1):
+        print(f"{i}. {node.metadata.get('ticket_id', 'Unknown')}")
+        #print(f"   {node.text[:150]}...")
 
 # ============================================================================
 # PART 4: Keyword Table Index
@@ -518,6 +539,11 @@ print("Source Documents:")
 for i, node in enumerate(keyword_response.source_nodes[:3], 1):
     print(f"\n{i}. {node.metadata.get('ticket_id', 'Unknown')}")
     print(f"   {node.text[:150]}...")
+
+keyword_query = "TICK-001"
+print(f"\nKeyword-specific query: '{keyword_query}'")
+keyword_response = keyword_query_engine.query(keyword_query)
+print(f"Result: {keyword_response.response}")
 
 # ============================================================================
 # PART 5: Hybrid Retrieval

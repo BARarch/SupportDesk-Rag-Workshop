@@ -3,5 +3,6 @@
 rag_vectorstore/
 chroma_db/
 my_chroma_db/
+my_saved_index/
 modules/1_embeddings/embeddings_similarity_analysis.png
 
